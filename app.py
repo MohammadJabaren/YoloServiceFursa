@@ -149,6 +149,10 @@ def get_predictions_by_label(label: str):
     """
     Get prediction sessions containing objects with specified label
     """
+    valid_labels = list(model.names.values())
+    if label not in valid_labels:
+        raise HTTPException(status_code=404, detail="Invalid label")
+
     with sqlite3.connect(DB_PATH) as conn:
         conn.row_factory = sqlite3.Row
         rows = conn.execute("""
@@ -165,6 +169,9 @@ def get_predictions_by_score(min_score: float):
     """
     Get prediction sessions containing objects with score >= min_score
     """
+    if not (0.0 <= min_score <= 1.0):
+        raise HTTPException(status_code=400, detail="Score must be between 0 and 1")
+
     with sqlite3.connect(DB_PATH) as conn:
         conn.row_factory = sqlite3.Row
         rows = conn.execute("""
@@ -220,4 +227,4 @@ def health():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+    uvicorn.run(app, host="0.0.0.0", port=8081)
