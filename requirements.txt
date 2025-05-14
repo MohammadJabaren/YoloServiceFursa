@@ -11,3 +11,9 @@ python-multipart>=0.0.6
 
 # PyTorch for deep learning
 torch>=2.0.0
+
+# AWS SDK for Python (S3 upload/download)
+boto3>=1.26.0
+
+# Environment variable loader
+python-dotenv>=1.0.0
