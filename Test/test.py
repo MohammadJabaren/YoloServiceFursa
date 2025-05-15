@@ -3,7 +3,7 @@ import shutil
 import sqlite3
 import pytest
 from fastapi.testclient import TestClient
-from yolo.app import app, UPLOAD_DIR, PREDICTED_DIR, DB_PATH, init_db
+from YoloServiceFursa.app import app, UPLOAD_DIR, PREDICTED_DIR, DB_PATH, init_db
 
 client = TestClient(app)
 
