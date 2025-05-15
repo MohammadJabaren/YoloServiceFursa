@@ -7,7 +7,7 @@ VENV_DIR="$PROJECT_DIR/.venv"
 SERVICE_FILE="yoloservice.service"
 
 cd "$PROJECT_DIR"
-sudo cp "SERVICE_FILE" /etc/systemd/system/
+sudo cp SERVICE_FILE /etc/systemd/system/
 
 echo "Using project directory: $PROJECT_DIR"
 
