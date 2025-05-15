@@ -36,9 +36,9 @@ if [ -f "$SERVICE_FILE" ]; then
     sudo systemctl restart "$SERVICE_FILE"
     sudo systemctl enable "$SERVICE_FILE"
     echo " Service reloaded and restarted."
-    if ! systemctl is-active --quiet polyservice.service; then
+    if ! systemctl is-active --quiet yoloservice.service; then
       echo "❌ polybot.service is not running Yet."
-      sudo systemctl status polyservice.service --no-pager
+      sudo systemctl status yoloservice.service --no-pager
       exit 1
     fi
 fi
