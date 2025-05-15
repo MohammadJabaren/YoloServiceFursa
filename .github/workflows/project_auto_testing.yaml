@@ -22,9 +22,11 @@ jobs:
 
       - name: Install dependencies
         run: |
+         
           pip install -r torch-requirements.txt
           pip install -r requirements.txt
           pip install pytest
+           pip install httpx
 
       - name: Run health check test
         run: |
