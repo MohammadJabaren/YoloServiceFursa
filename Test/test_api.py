@@ -9,7 +9,7 @@ from app import app, UPLOAD_DIR, PREDICTED_DIR, DB_PATH, init_db,model
 
 client = TestClient(app)
 
-TEST_IMAGE_PATH = "test_image.jpg"
+TEST_IMAGE_PATH = os.path.join(os.path.dirname(__file__), "test_image.jpg")
 INVALID_IMAGE_PATH = "invalid_file.txt"
 
 #Clean The DB
@@ -68,6 +68,7 @@ def test_predict_invalid_file_type():
 
 
 def test_predict_valid_image_and_db_and_getters():
+
     with open(TEST_IMAGE_PATH, "rb") as img_file:
         resp = client.post("/predict", files={"file": ("test_image.jpg", img_file, "image/jpeg")})
     assert resp.status_code == 200
