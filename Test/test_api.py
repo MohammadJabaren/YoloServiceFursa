@@ -8,8 +8,8 @@ from app import app, UPLOAD_DIR, PREDICTED_DIR, DB_PATH, init_db
 
 client = TestClient(app)
 
-TEST_IMAGE_PATH = "test_image.jpg"
-INVALID_IMAGE_PATH = "invalid_file.txt"
+TEST_IMAGE_PATH = "Test/test_image.jpg"
+INVALID_IMAGE_PATH = "Test/invalid_file.txt"
 
 #Clean The DB
 @pytest.fixture(scope="module", autouse=True)
