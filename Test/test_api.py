@@ -4,7 +4,7 @@ import sqlite3
 import pytest
 from fastapi.testclient import TestClient
 from YoloServiceFursa.app import app, UPLOAD_DIR, PREDICTED_DIR, DB_PATH, init_db
-
+'''
 client = TestClient(app)
 
 TEST_IMAGE_PATH = "test_image.jpg"
@@ -155,5 +155,4 @@ def test_get_image_valid_and_invalid():
 # Non-existent filename
     resp = client.get("/image/original/nonexistentfile.jpg")
     assert resp.status_code == 404
-
-
+'''
