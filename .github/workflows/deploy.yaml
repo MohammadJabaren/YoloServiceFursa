@@ -37,20 +37,10 @@ jobs:
           EOF
 
       - name: Copy and checkout PR branch to EC2
-        env:
-           BRANCH_NAME: ${{ github.head_ref != '' && github.head_ref || github.ref_name }}
+
         run: |
-          echo "Deploying branch: $BRANCH_NAME"
-          ssh ec2 "
-            if [ -d ~/${REPO_NAME} ]; then
-              cd ~/${REPO_NAME}
-              git fetch origin
-              git checkout $BRANCH_NAME || git checkout -b $BRANCH_NAME origin/$BRANCH_NAME
-              git pull origin $BRANCH_NAME
-            else
-              git clone --branch $BRANCH_NAME ${REPO_URL} ~/${REPO_NAME}
-            fi
-          "
+          # Clone repository if it doesn't exist, otherwise pull latest changes
+           ssh ec2 "if [ -d ~/${REPO_NAME} ]; then cd ~/${REPO_NAME} && git pull; else git clone ${REPO_URL} ~/${REPO_NAME}; fi"
 
       - name: Execute script on EC2
         run: |
