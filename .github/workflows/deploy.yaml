@@ -36,7 +36,7 @@ jobs:
               StrictHostKeyChecking no
           EOF
       - name: Copy and checkout PR branch to EC2
-
+#test
         run: |
           # Clone repository if it doesn't exist, otherwise pull latest changes
            ssh ec2 "if [ -d ~/${REPO_NAME} ]; then cd ~/${REPO_NAME} && git pull; else git clone ${REPO_URL} ~/${REPO_NAME}; fi"
