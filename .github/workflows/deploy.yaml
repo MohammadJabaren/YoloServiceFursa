@@ -35,7 +35,6 @@ jobs:
               IdentityFile ~/.ssh/private_key
               StrictHostKeyChecking no
           EOF
-#test
       - name: Copy and checkout PR branch to EC2
 
         run: |
