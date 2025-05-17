@@ -66,7 +66,6 @@ def test_predict_invalid_file_type():
 
 
 
-
 def test_predict_valid_image_and_db_and_getters():
 
     with open(TEST_IMAGE_PATH, "rb") as img_file:
