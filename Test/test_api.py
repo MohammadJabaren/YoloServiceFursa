@@ -62,7 +62,6 @@ def test_predict_invalid_file_type():
         # Consider it a pass as long as the API didn't succeed
         assert True
 
-#test
 
 
 
