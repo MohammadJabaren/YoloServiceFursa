@@ -11,6 +11,8 @@ sudo cp yoloservice-dev.service /etc/systemd/system/
 
 echo "Using project directory: $PROJECT_DIR"
 sudo apt update
+sudo apt install -y libgl1
+
 
 # check Venv
 if [ -d "$VENV_DIR" ]; then
