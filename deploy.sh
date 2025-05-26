@@ -18,6 +18,7 @@ else
     echo " Creating virtual environment"
     python3 -m venv "$VENV_DIR"
 fi
+#test
 
 # activate Venv
 source "$VENV_DIR/bin/activate"
