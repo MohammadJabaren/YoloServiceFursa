@@ -1,4 +1,4 @@
-name: Yolo Deploy
+name: Yolo Dev Deploy
 
 on:
   push:
