@@ -4,7 +4,7 @@ set -e
 
 PROJECT_DIR="$1"
 VENV_DIR="$PROJECT_DIR/.venv"
-SERVICE_FILE="yoloservice.service"
+SERVICE_FILE="yoloservice-dev.service"
 DEB_FILE="otelcol_0.127.0_linux_amd64.deb"
 
 
@@ -56,9 +56,12 @@ if ! systemctl is-active --quiet otelcol; then
       exit 1
 fi
 
-sudo cp yoloservice.service /etc/systemd/system/
+sudo cp yoloservice-dev.service /etc/systemd/system/
 
 echo "Using project directory: $PROJECT_DIR"
+sudo apt update
+sudo apt install -y libgl1
+
 
 # check Venv
 if [ -d "$VENV_DIR" ]; then
@@ -85,9 +88,9 @@ if [ -f "$SERVICE_FILE" ]; then
     sudo systemctl restart "$SERVICE_FILE"
     sudo systemctl enable "$SERVICE_FILE"
     echo " Service reloaded and restarted."
-    if ! systemctl is-active --quiet yoloservice.service; then
+    if ! systemctl is-active --quiet yoloservice-dev.service; then
       echo "❌ polybot.service is not running Yet."
-      sudo systemctl status yoloservice.service --no-pager
+      sudo systemctl status yoloservice-dev.service --no-pager
       exit 1
     fi
 fi
