@@ -4,6 +4,7 @@ set -e
 
 PROJECT_DIR="$1"
 VENV_DIR="$PROJECT_DIR/.venv"
+ENV_FILE="$PROJECT_DIR/.env"
 SERVICE_FILE="yoloservice-dev.service"
 DEB_FILE="otelcol_0.127.0_linux_amd64.deb"
 
@@ -73,6 +74,28 @@ fi
 
 # activate Venv
 source "$VENV_DIR/bin/activate"
+
+
+if [ ! -f "$ENV_FILE" ]; then
+    echo ".env file does NOT exist — creating it..."
+    touch "$ENV_FILE"
+fi
+###
+set_env_var() {
+    KEY="$1"
+    VALUE="$2"
+    if grep -q "^$KEY=" "$ENV_FILE"; then
+        echo " Updating $KEY in .env"
+        sed -i "s|^$KEY=.*|$KEY=$VALUE|" "$ENV_FILE"
+    else
+        echo " Adding $KEY to .env"
+        echo "$KEY=$VALUE" >> "$ENV_FILE"
+    fi
+}
+
+set_env_var "AWS_S3_BUCKET" "$AWS_S3_BUCKET"
+
+echo " .env file is up to date."
 
 
 pip install --upgrade pip
