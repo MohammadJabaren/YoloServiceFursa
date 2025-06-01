@@ -1,0 +1,17 @@
+[Unit]
+Description=YOLO Image Processing Service
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/YoloServiceFursa
+ExecStart=/home/ubuntu/YoloServiceFursa/.venv/bin/python3 app.py
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
