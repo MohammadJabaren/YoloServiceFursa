@@ -92,8 +92,7 @@ set_env_var() {
 
 set_env_var "AWS_S3_BUCKET" "$AWS_S3_BUCKET"
 
-echo " .env file is up to date."
-
+echo " .env file is up to date. AWS_S3_BUCKET=$AWS_S3_BUCKET"
 
 pip install --upgrade pip
 pip install -r torch-requirements.txt
