@@ -3,6 +3,8 @@ set -e
 
 
 PROJECT_DIR="$1"
+AWS_S3_BUCKET="$2"
+
 VENV_DIR="$PROJECT_DIR/.venv"
 ENV_FILE="$PROJECT_DIR/.env"
 SERVICE_FILE="yoloservice-dev.service"

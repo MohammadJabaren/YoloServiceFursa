@@ -5,6 +5,7 @@ set -e
 PROJECT_DIR="$1"
 VENV_DIR="$PROJECT_DIR/.venv"
 ENV_FILE="$PROJECT_DIR/.env"
+AWS_S3_BUCKET="$2"
 SERVICE_FILE="yoloservice.service"
 DEB_FILE="otelcol_0.127.0_linux_amd64.deb"
 
