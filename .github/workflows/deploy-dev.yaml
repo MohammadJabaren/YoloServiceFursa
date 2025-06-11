@@ -65,7 +65,7 @@ jobs:
 
           # SSH into EC2 and run install + deploy
           ssh ec2 '
-
+            sudo dpkg --configure -a
             sudo apt-get update
 
             if ! command -v docker &> /dev/null; then
