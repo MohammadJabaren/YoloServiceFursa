@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  yolo-dev:
+    image: "${IMG_NAME}"
+    env_file:
+      - .env
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+#    depends_on:
+#      - yolo
+

@@ -95,6 +95,27 @@ echo " .env file is up to date."
 
 
 
+if [ ! -f "$ENV_FILE" ]; then
+    echo ".env file does NOT exist — creating it..."
+    touch "$ENV_FILE"
+fi
+###
+set_env_var() {
+    KEY="$1"
+    VALUE="$2"
+    if grep -q "^$KEY=" "$ENV_FILE"; then
+        echo " Updating $KEY in .env"
+        sed -i "s|^$KEY=.*|$KEY=$VALUE|" "$ENV_FILE"
+    else
+        echo " Adding $KEY to .env"
+        echo "$KEY=$VALUE" >> "$ENV_FILE"
+    fi
+}
+
+set_env_var "AWS_S3_BUCKET" "$AWS_S3_BUCKET"
+
+echo " .env file is up to date. AWS_S3_BUCKET=$AWS_S3_BUCKET"
+
 pip install --upgrade pip
 pip install -r torch-requirements.txt
 pip install -r requirements.txt

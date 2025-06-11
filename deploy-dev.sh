@@ -4,6 +4,7 @@ set -e
 
 PROJECT_DIR="$1"
 AWS_S3_BUCKET="$2"
+
 VENV_DIR="$PROJECT_DIR/.venv"
 ENV_FILE="$PROJECT_DIR/.env"
 SERVICE_FILE="yoloservice-dev.service"
@@ -62,6 +63,7 @@ sudo cp yoloservice-dev.service /etc/systemd/system/
 
 echo "Using project directory: $PROJECT_DIR"
 sudo apt update
+
 sudo apt install -y libgl1
 
 
