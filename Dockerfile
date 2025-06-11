@@ -16,7 +16,7 @@ RUN pip install --upgrade pip \
     && pip install -r requirements.txt
 
 # Expose the Flask port
-EXPOSE 8443
+EXPOSE 8080
 
 # Run the bot
-CMD ["python3", "-m", "polybot.app"]
+CMD ["python", "app.py"]
