@@ -7,6 +7,16 @@ RUN apt-get update && apt-get install -y libgl1 && apt-get clean
 # Create a working directory
 WORKDIR /app
 
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy the application code
 COPY . .
 
