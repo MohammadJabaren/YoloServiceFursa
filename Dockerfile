@@ -1,22 +1,29 @@
-# Use an official Python runtime as base image
-FROM python:3.10-slim
+# Base image
+FROM python:3.11-slim AS base
 
-# Install required system packages (e.g., for OpenCV support)
-RUN apt-get update && apt-get install -y libgl1 && apt-get clean
-
-# Create a working directory
+# Set work directory
 WORKDIR /app
 
-# Copy the application code
+RUN apt-get update && apt-get install -y libgl1
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy source code
 COPY . .
 
-# Upgrade pip and install Python dependencies
-RUN pip install --upgrade pip \
-    && pip install -r torch-requirements.txt \
-    && pip install -r requirements.txt
+# Install Python dependencies
+RUN pip install --upgrade pip && pip install -r /app/torch-requirements.txt
+RUN pip install --upgrade pip && pip install -r /app/requirements.txt
 
-# Expose the Flask port
+# Expose the service port
 EXPOSE 8080
 
-# Run the bot
+# Default command to run the bot
 CMD ["python", "app.py"]
