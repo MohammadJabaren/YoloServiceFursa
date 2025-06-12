@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  yolo-dev:
+  yolo-prod:
     image: "${IMG_NAME}"
     env_file:
       - .env
@@ -10,7 +10,6 @@ services:
       - "8080:8080"
 #    depends_on:
 #      - yolo
-
   otelcol:
     image: otel/opentelemetry-collector-contrib:latest
     ports:
