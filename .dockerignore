@@ -1,0 +1,10 @@
+venv/
+.env/
+
+.git/
+.gitignore
+
+README.md
+
+*.sqlite
+*.db
