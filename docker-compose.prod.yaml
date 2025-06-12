@@ -12,6 +12,7 @@ services:
 #      - yolo
   otelcol:
     image: otel/opentelemetry-collector-contrib:latest
+    command: [ "--config=/etc/otelcol/config.yaml" ]
     ports:
       - "8889:8889"  # Expose the Prometheus exporter port
     volumes:
