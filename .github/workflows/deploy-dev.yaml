@@ -61,7 +61,7 @@ jobs:
           echo "AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET_DEV }}" >> .env
 
           # Send .env and compose file to EC2
-          scp .env docker-compose.dev.yaml ec2:~/
+          scp .env docker-compose.dev.yaml otelcol-config.yaml ec2:~/
 
           # SSH into EC2 and run install + deploy
           ssh ec2 "
