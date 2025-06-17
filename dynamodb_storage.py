@@ -31,7 +31,7 @@ class DynamoDBStorage(StorageInterface):
             "prediction_uid": uid,
             "label_score": f"{label}#{score}",
             "label": label,
-            "score": str(Decimal(score)),
+            "score": Decimal(score),
             "score_partition": "score",
             "box": json.dumps([float(x) for x in bbox])
 
@@ -81,7 +81,7 @@ class DynamoDBStorage(StorageInterface):
 
     def get_predictions_by_score(self, min_score: float) -> List[Dict]:
         response = self.objects_table.query(
-            IndexName="ScoreIndex",
+            IndexName="score_partition-score-index",
             KeyConditionExpression=Key("score_partition").eq("score") & Key("score").gte(Decimal(str(min_score)))
         )
         seen = set()
