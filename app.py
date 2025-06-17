@@ -124,7 +124,11 @@ def get_predictions_by_label(label: str):
 
 @app.get("/predictions/score/{min_score}")
 def get_predictions_by_score(min_score: float):
-    return storage.get_predictions_by_score(min_score)
+    try:
+        return storage.get_predictions_by_score(min_score)
+    except Exception as e:
+        logger.error(f"Error in get_predictions_by_score: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @app.get("/health")
 def health():
