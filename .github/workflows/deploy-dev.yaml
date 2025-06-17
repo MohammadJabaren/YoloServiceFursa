@@ -59,7 +59,9 @@ jobs:
           echo "This is the image name :- ${{ inputs.image }}"
           echo "IMG_NAME=mohammadjabaren${{ inputs.image }}" > .env
           echo "AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET_DEV }}" >> .env
-
+          echo "STORAGE_TYPE=dynamodb" >> .env
+          
+          echo "This is the storage type :- $STORAGE_TYPE"
           # Send .env and compose file to EC2
           scp .env docker-compose.dev.yaml otelcol-config.yaml ec2:~/
 
