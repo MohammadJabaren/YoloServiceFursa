@@ -6,7 +6,14 @@ import json
 from typing import List, Dict
 import os
 import logging
+from dotenv import load_dotenv
 logger = logging.getLogger("dynamodb_storage")
+
+load_dotenv()
+PREDICTION_SESSIONS = os.getenv("PREDICTION_SESSIONS")
+DETECTION_OBJECTS = os.getenv("DETECTION_OBJECTS")
+LABEL_GSI = os.getenv("LABEL_GSI")
+SCORE_GSI = os.getenv("SCORE_GSI")
 
 
 class DynamoDBStorage(StorageInterface):
@@ -15,9 +22,9 @@ class DynamoDBStorage(StorageInterface):
         if not region:
             raise ValueError("Missing AWS_REGION environment variable")
         self.dynamodb = boto3.resource('dynamodb', region_name=region)
-        self.session_table = self.dynamodb.Table("Jabaren_prediction_sessions_dev")
+        self.session_table = self.dynamodb.Table(PREDICTION_SESSIONS)
         logger.info("Created session_table")
-        self.objects_table = self.dynamodb.Table("Jabaren_detection_objects_dev")
+        self.objects_table = self.dynamodb.Table(DETECTION_OBJECTS)
         logger.info("Created objects_table")
 
     def save_prediction(self, uid: str, original_path: str, predicted_path: str):
@@ -67,7 +74,7 @@ class DynamoDBStorage(StorageInterface):
 
     def get_predictions_by_label(self, label: str) -> List[Dict]:
         response = self.objects_table.query(
-            IndexName="LabelScoreIndex",
+            IndexName=LABEL_GSI,
             KeyConditionExpression=Key("label").eq(label)
         )
         seen = set()
@@ -83,7 +90,7 @@ class DynamoDBStorage(StorageInterface):
 
     def get_predictions_by_score(self, min_score: float) -> List[Dict]:
         response = self.objects_table.query(
-            IndexName="score_partition-score-index",
+            IndexName=SCORE_GSI,
             KeyConditionExpression=Key("score_partition").eq("score") & Key("score").gte(Decimal(str(min_score)))
         )
         seen = set()
