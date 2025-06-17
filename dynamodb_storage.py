@@ -5,6 +5,8 @@ from storage_interface import StorageInterface
 import json
 from typing import List, Dict
 import os
+from botocore.exceptions import ClientError
+
 
 class DynamoDBStorage(StorageInterface):
     def __init__(self):
@@ -23,14 +25,19 @@ class DynamoDBStorage(StorageInterface):
         })
 
     def save_detection(self, uid: str, label: str, score: float, bbox: str):
-        self.objects_table.put_item(Item={
+        item = {
             "prediction_uid": uid,
             "label_score": f"{label}#{score}",
             "label": label,
             "score": Decimal(str(score)),
             "score_partition": "score",
             "box": json.dumps(bbox)
-        })
+        }
+        try:
+            self.objects_table.put_item(Item=item)
+        except ClientError as e:
+            print(f"[DynamoDB ERROR] Failed to insert detection: {e.response['Error']['Message']}")
+            raise
 
     def get_prediction(self, uid: str) -> Dict:
         session = self.session_table.get_item(Key={"uid": uid}).get("Item")
