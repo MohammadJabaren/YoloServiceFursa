@@ -4,10 +4,14 @@ from boto3.dynamodb.conditions import Key, Attr
 from storage_interface import StorageInterface
 import json
 from typing import List, Dict
+import os
 
 class DynamoDBStorage(StorageInterface):
     def __init__(self):
-        self.dynamodb = boto3.resource('dynamodb')
+        region = os.getenv("AWS_REGION", "us-west-1")  # default to us-west-1 if not set
+        if not region:
+            raise ValueError("Missing AWS_REGION environment variable")
+        self.dynamodb = boto3.resource('dynamodb', region_name=region)
         self.session_table = self.dynamodb.Table("Jabaren_prediction_sessions_dev")
         self.objects_table = self.dynamodb.Table("Jabaren_detection_objects_dev")
 
