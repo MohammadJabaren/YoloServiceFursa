@@ -5,6 +5,8 @@ from storage_interface import StorageInterface
 import json
 from typing import List, Dict
 import os
+import logging
+logger = logging.getLogger("dynamodb_storage")
 
 
 class DynamoDBStorage(StorageInterface):
@@ -23,17 +25,23 @@ class DynamoDBStorage(StorageInterface):
             "predicted_image": predicted_path
         })
 
-    def save_detection(self, uid: str, label: str, score: float, bbox: str):
+
+    def save_detection(self, uid: str, label: str, score:float, bbox:list[Decimal]):
         item = {
             "prediction_uid": uid,
             "label_score": f"{label}#{score}",
             "label": label,
-            "score": score,
+            "score": str(Decimal(score)),
             "score_partition": "score",
-            "box": str(bbox)
-        }
-        self.objects_table.put_item(Item=item)
+            "box": json.dumps([float(x) for x in bbox])
 
+        }
+        logger.info(f"[Detection] Inserting item: {item}")
+        try:
+            self.objects_table.put_item(Item=item)
+            logger.info(f"[Detection] Inserted detection for {uid}")
+        except Exception as e:
+            logger.error(f"[DynamoDB ERROR] Failed to insert detection: {e}")
 
     def get_prediction(self, uid: str) -> Dict:
         session = self.session_table.get_item(Key={"uid": uid}).get("Item")
