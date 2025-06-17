@@ -32,7 +32,7 @@ class DynamoDBStorage(StorageInterface):
             "prediction_uid": uid,
             "label_score": f"{label}#{score}",
             "label": label,
-            "score": score,
+            "score": Decimal(str(score)),
             "score_partition": "score",
             "box": str(bbox)
         }
