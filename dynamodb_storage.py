@@ -27,14 +27,15 @@ class DynamoDBStorage(StorageInterface):
             "predicted_image": predicted_path
         })
 
-    def save_detection(self, uid, label, score:Decimal, bbox:list[Decimal]):
+    def save_detection(self, uid: str, label: str, score:float, bbox:list[Decimal]):
         item = {
             "prediction_uid": uid,
             "label_score": f"{label}#{score}",
             "label": label,
-            "score": score,
+            "score": str(Decimal(score)),
             "score_partition": "score",
-            "box": str(bbox)
+            "box": json.dumps([float(x) for x in bbox])
+
         }
         logger.info(f"[Detection] Inserting item: {item}")
         try:

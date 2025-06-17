@@ -13,7 +13,8 @@ from sqlite_storage import SQLiteStorage
 from dynamodb_storage import DynamoDBStorage
 from init_db import init_db
 from decimal import Decimal
-
+import logging
+logger = logging.getLogger("dynamodb_storage")
 
 load_dotenv()
 
@@ -73,10 +74,10 @@ async def predict(request: Request):
         for box in results[0].boxes:
             label_idx = int(box.cls[0].item())
             label = model.names[label_idx]
-            score = Decimal(box.conf[0])
-            bbox_raw = box.xyxy[0].tolist()
-            bbox = [Decimal(x) for x in bbox_raw]
-            storage.save_detection(uid, label, score, bbox)
+            score = float(box.conf[0])
+            bbox = box.xyxy[0].tolist()
+            bbox_r = [Decimal(x) for x in bbox]
+            storage.save_detection(uid, label, score, bbox_r)
             detected_labels.append(label)
 
         return {
