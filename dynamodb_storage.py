@@ -28,9 +28,9 @@ class DynamoDBStorage(StorageInterface):
             "prediction_uid": uid,
             "label_score": f"{label}#{score}",
             "label": label,
-            "score": Decimal(str(score)),
+            "score": score,
             "score_partition": "score",
-            "box": json.dumps(bbox)
+            "box": str(bbox)
         }
         self.objects_table.put_item(Item=item)
 
