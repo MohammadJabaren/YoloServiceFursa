@@ -27,7 +27,7 @@ class DynamoDBStorage(StorageInterface):
             "predicted_image": predicted_path
         })
 
-    def save_detection(self, uid, label, score, bbox):
+    def save_detection(self, uid, label, score:Decimal, bbox:list[Decimal]):
         item = {
             "prediction_uid": uid,
             "label_score": f"{label}#{score}",
