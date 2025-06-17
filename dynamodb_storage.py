@@ -6,9 +6,7 @@ import json
 from typing import List, Dict
 import os
 import logging
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("dynamodb_storage")
 
 
 class DynamoDBStorage(StorageInterface):
@@ -39,8 +37,11 @@ class DynamoDBStorage(StorageInterface):
             "box": str(bbox)
         }
         logger.info(f"[Detection] Inserting item: {item}")
-        self.objects_table.put_item(Item=item)
-        logger.info(f"[Detection] Inserted detection for {uid}")
+        try:
+            self.objects_table.put_item(Item=item)
+            logger.info(f"[Detection] Inserted detection for {uid}")
+        except Exception as e:
+            logger.error(f"[DynamoDB ERROR] Failed to insert detection: {e}")
 
 
     def get_prediction(self, uid: str) -> Dict:
