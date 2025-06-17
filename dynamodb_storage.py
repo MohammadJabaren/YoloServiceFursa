@@ -5,6 +5,10 @@ from storage_interface import StorageInterface
 import json
 from typing import List, Dict
 import os
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class DynamoDBStorage(StorageInterface):
@@ -14,7 +18,9 @@ class DynamoDBStorage(StorageInterface):
             raise ValueError("Missing AWS_REGION environment variable")
         self.dynamodb = boto3.resource('dynamodb', region_name=region)
         self.session_table = self.dynamodb.Table("Jabaren_prediction_sessions_dev")
+        logger.info("Created session_table")
         self.objects_table = self.dynamodb.Table("Jabaren_detection_objects_dev")
+        logger.info("Created objects_table")
 
     def save_prediction(self, uid: str, original_path: str, predicted_path: str):
         self.session_table.put_item(Item={
@@ -32,7 +38,9 @@ class DynamoDBStorage(StorageInterface):
             "score_partition": "score",
             "box": str(bbox)
         }
+        logger.info(f"[Detection] Inserting item: {item}")
         self.objects_table.put_item(Item=item)
+        logger.info(f"[Detection] Inserted detection for {uid}")
 
 
     def get_prediction(self, uid: str) -> Dict:
