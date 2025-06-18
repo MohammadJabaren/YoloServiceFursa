@@ -56,20 +56,10 @@ class DynamoDBStorage(StorageInterface):
         session = self.session_table.get_item(Key={"uid": uid}).get("Item")
         if not session:
             raise ValueError("Prediction not found")
-        response = self.objects_table.query(
-            KeyConditionExpression=Key("prediction_uid").eq(uid)
-        )
         return {
             "uid": uid,
             "original_image": session.get("original_image"),
-            "predicted_image": session.get("predicted_image"),
-            "detection_objects": [
-                {
-                    "label": item["label"],
-                    "score": float(item["score"]),
-                    "box": json.loads(item["box"])
-                } for item in response.get("Items", [])
-            ]
+            "predicted_image": session.get("predicted_image")
         }
 
     def get_predictions_by_label(self, label: str) -> List[Dict]:

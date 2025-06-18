@@ -14,12 +14,20 @@ from dynamodb_storage import DynamoDBStorage
 from init_db import init_db
 from decimal import Decimal
 import logging
+import json
+import threading
+import time
+import requests
+
 logger = logging.getLogger("dynamodb_storage")
 
 load_dotenv()
 
 S3_BUCKET_NAME = os.getenv("AWS_S3_BUCKET")
 S3_CLIENT = boto3.client("s3")
+
+SQS_CLIENT = boto3.client("sqs")
+SQS_URL = os.getenv("SQS_URL")
 
 UPLOAD_DIR = "uploads/original"
 PREDICTED_DIR = "uploads/predicted"
@@ -36,6 +44,88 @@ if storage_type == "dynamodb":
 else:
     init_db()
     storage = SQLiteStorage()
+
+
+def poll_sqs_messages():
+    while True:
+        try:
+            response = SQS_CLIENT.receive_message(
+                QueueUrl=SQS_URL,
+                WaitTimeSeconds=10,
+                MaxNumberOfMessages=5
+            )
+
+            messages = response.get("Messages", [])
+            for message in messages:
+                process_message(message)
+                # delete after processing
+                SQS_CLIENT.delete_message(
+                    QueueUrl=SQS_URL,
+                    ReceiptHandle=message["ReceiptHandle"]
+                )
+
+        except Exception as e:
+            logger.error(f"Error polling SQS: {e}")
+        time.sleep(5)
+
+# Start thread
+threading.Thread(target=poll_sqs_messages, daemon=True).start()
+
+def process_message(message):
+    body = json.loads(message["Body"])
+    s3_key = body["s3_key"]
+    chat_id = body["chat_id"]
+    uid = str(uuid.uuid4())
+
+    print(f"[SQS] Processing prediction for UID: {uid}, S3 key: {s3_key}")
+
+    # Download image from S3
+    local_input_path = os.path.join(UPLOAD_DIR, s3_key)
+    local_output_path = os.path.join(PREDICTED_DIR, uid + ".jpg")
+
+    S3_CLIENT.download_file(S3_BUCKET_NAME, s3_key, local_input_path)
+
+    # Run YOLO model
+    results = model(local_input_path, device="cpu")
+
+    # Annotate and save predicted image
+    annotated_frame = results[0].plot()
+    annotated_image = Image.fromarray(annotated_frame)
+    annotated_image.save(local_output_path)
+
+    # Upload predicted image to S3
+    annotated_s3_key = f"predictions/{uid}_annotated.jpg"
+    with open(local_output_path, "rb") as f:
+        S3_CLIENT.upload_fileobj(f, S3_BUCKET_NAME, annotated_s3_key)
+
+    # Save session info and detections to DB
+    storage.save_prediction(uid, local_input_path, annotated_s3_key)
+
+    detected_labels = []
+    for box in results[0].boxes:
+        label_idx = int(box.cls[0].item())
+        label = model.names[label_idx]
+        score = float(box.conf[0])
+        bbox = box.xyxy[0].tolist()
+        bbox_r = [Decimal(x) for x in bbox]
+        storage.save_detection(uid, label, score, bbox_r)
+        detected_labels.append(label)
+    print(f"[SQS] Prediction complete for UID: {uid}")
+    try:
+        notify_url = "http://localhost:8443/notify"  # replace if needed
+
+        if storage_type == "dynamodb":
+            payload = {"chat_id": chat_id, "uid": uid}
+        else:
+            payload = {"chat_id": chat_id, "labels": detected_labels}
+
+        response = requests.post(notify_url, json=payload)
+        response.raise_for_status()
+        print(f"[HTTP] Notification sent: {payload}")
+    except Exception as e:
+        print(f"[HTTP] Notification failed for UID {uid}: {e}")
+
+
 
 @app.post("/predict")
 async def predict(request: Request):
