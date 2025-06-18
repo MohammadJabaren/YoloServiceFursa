@@ -61,14 +61,7 @@ class DynamoDBStorage(StorageInterface):
         return {
             "uid": uid,
             "original_image": session.get("original_image"),
-            "predicted_image": session.get("predicted_image"),
-            "detection_objects": [
-                {
-                    "label": item["label"],
-                    "score": float(item["score"]),
-                    "box": json.loads(item["box"])
-                } for item in response.get("Items", [])
-            ]
+            "predicted_image": session.get("predicted_image")
         }
 
     def get_predictions_by_label(self, label: str) -> List[Dict]:
