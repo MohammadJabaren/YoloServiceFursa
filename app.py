@@ -21,7 +21,7 @@ import requests
 
 logger = logging.getLogger("dynamodb_storage")
 load_dotenv()
-
+POLYBOT_IP = os.getenv("POLYBOT_IP")
 S3_BUCKET_NAME = os.getenv("AWS_S3_BUCKET")
 S3_CLIENT = boto3.client("s3")
 
@@ -70,7 +70,7 @@ def poll_sqs_messages():
 
 # Start thread
 threading.Thread(target=poll_sqs_messages, daemon=True).start()
-#------------------------------------------------------------------- NEED TO CHANGE LOCALHOST WITH PRIVAT IP POLY
+
 def process_message(message):
     body = json.loads(message["Body"])
     s3_key = body["s3_key"]
@@ -112,7 +112,7 @@ def process_message(message):
         detected_labels.append(label)
     print(f"[SQS] Prediction complete for UID: {uid}")
     try:
-        notify_url = "http://localhost:8443/notify"  # replace if needed
+        notify_url = "http://POLYBOT_IP:8443/notify"  # replace if needed
 
         if storage_type == "dynamodb":
             payload = {"chat_id": chat_id, "uid": uid}
