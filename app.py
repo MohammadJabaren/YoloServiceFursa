@@ -21,11 +21,12 @@ import requests
 
 logger = logging.getLogger("dynamodb_storage")
 load_dotenv()
+AWS_REGION = os.getenv("AWS_REGION", "us-west-1")
 POLYBOT_IP = os.getenv("POLYBOT_IP")
 S3_BUCKET_NAME = os.getenv("AWS_S3_BUCKET")
-S3_CLIENT = boto3.client("s3")
+S3_CLIENT = boto3.client("s3",region_name=AWS_REGION)
 
-SQS_CLIENT = boto3.client("sqs")
+SQS_CLIENT = boto3.client("sqs",region_name=AWS_REGION)
 SQS_URL = os.getenv("SQS_URL")
 
 UPLOAD_DIR = "uploads/original"
