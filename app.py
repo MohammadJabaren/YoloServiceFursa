@@ -113,7 +113,7 @@ def process_message(message):
         detected_labels.append(label)
     print(f"[SQS] Prediction complete for UID: {uid}")
     try:
-        notify_url = "http://POLYBOT_IP:8443/notify"  # replace if needed
+        notify_url = f"http://{POLYBOT_IP}:8443/notify" # replace if needed
 
         if storage_type == "dynamodb":
             payload = {"chat_id": chat_id, "uid": uid}
