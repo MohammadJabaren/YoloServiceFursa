@@ -6,7 +6,15 @@ import json
 from typing import List, Dict
 import os
 import logging
+from dotenv import load_dotenv
 logger = logging.getLogger("dynamodb_storage")
+
+
+load_dotenv()
+PREDICTION_SESSIONS = os.getenv("PREDICTION_SESSIONS")
+DETECTION_OBJECTS = os.getenv("DETECTION_OBJECTS")
+LABEL_GSI = os.getenv("LABEL_GSI")
+SCORE_GSI = os.getenv("SCORE_GSI")
 
 
 class DynamoDBStorage(StorageInterface):
@@ -15,10 +23,8 @@ class DynamoDBStorage(StorageInterface):
         if not region:
             raise ValueError("Missing AWS_REGION environment variable")
         self.dynamodb = boto3.resource('dynamodb', region_name=region)
-        self.session_table = self.dynamodb.Table("Jabaren_prediction_sessions_dev")
-        logger.info("Created session_table")
-        self.objects_table = self.dynamodb.Table("Jabaren_detection_objects_dev")
-        logger.info("Created objects_table")
+        self.session_table = self.dynamodb.Table(PREDICTION_SESSIONS)
+        self.objects_table = self.dynamodb.Table(DETECTION_OBJECTS)
 
     def save_prediction(self, uid: str, original_path: str, predicted_path: str):
         self.session_table.put_item(Item={
@@ -27,14 +33,16 @@ class DynamoDBStorage(StorageInterface):
             "predicted_image": predicted_path
         })
 
-    def save_detection(self, uid, label, score:Decimal, bbox:list[Decimal]):
+
+    def save_detection(self, uid: str, label: str, score:float, bbox:list[Decimal]):
         item = {
             "prediction_uid": uid,
             "label_score": f"{label}#{score}",
             "label": label,
-            "score": score,
+            "score": Decimal(score),
             "score_partition": "score",
-            "box": str(bbox)
+            "box": json.dumps([float(x) for x in bbox])
+
         }
         logger.info(f"[Detection] Inserting item: {item}")
         try:
@@ -42,7 +50,6 @@ class DynamoDBStorage(StorageInterface):
             logger.info(f"[Detection] Inserted detection for {uid}")
         except Exception as e:
             logger.error(f"[DynamoDB ERROR] Failed to insert detection: {e}")
-
 
     def get_prediction(self, uid: str) -> Dict:
         session = self.session_table.get_item(Key={"uid": uid}).get("Item")
@@ -54,19 +61,12 @@ class DynamoDBStorage(StorageInterface):
         return {
             "uid": uid,
             "original_image": session.get("original_image"),
-            "predicted_image": session.get("predicted_image"),
-            "detection_objects": [
-                {
-                    "label": item["label"],
-                    "score": float(item["score"]),
-                    "box": json.loads(item["box"])
-                } for item in response.get("Items", [])
-            ]
+            "predicted_image": session.get("predicted_image")
         }
 
     def get_predictions_by_label(self, label: str) -> List[Dict]:
         response = self.objects_table.query(
-            IndexName="LabelScoreIndex",
+            IndexName=LABEL_GSI,
             KeyConditionExpression=Key("label").eq(label)
         )
         seen = set()
@@ -82,7 +82,7 @@ class DynamoDBStorage(StorageInterface):
 
     def get_predictions_by_score(self, min_score: float) -> List[Dict]:
         response = self.objects_table.query(
-            IndexName="ScoreIndex",
+            IndexName=SCORE_GSI,
             KeyConditionExpression=Key("score_partition").eq("score") & Key("score").gte(Decimal(str(min_score)))
         )
         seen = set()

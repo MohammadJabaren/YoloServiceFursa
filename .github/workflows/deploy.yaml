@@ -15,6 +15,14 @@ on:
         required: true
       AWS_S3_BUCKET_MAIN:
         required: true
+      DETECTION_OBJECTS_PROD:
+        required: true
+      PREDICTION_SESSIONS_PROD:
+        required: true
+      SQS_URL_PROD:
+        required: true
+      POLYBOT_IP_PROD:
+        required: true
 
   workflow_dispatch:
     inputs:
@@ -40,6 +48,10 @@ jobs:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
           AWS_S3_BUCKET_MAIN: ${{secrets.AWS_S3_BUCKET_MAIN}}
+          DETECTION_OBJECTS_PROD: ${{secrets.DETECTION_OBJECTS_PROD}}
+          PREDICTION_SESSIONS_PROD: ${{secrets.PREDICTION_SESSIONS_PROD}}
+          SQS_URL_PROD: ${{secrets.SQS_URL_PROD}}
+          POLYBOT_IP_PROD: ${{secrets.POLYBOT_IP_PROD}}
 
         run: |
           mkdir -p ~/.ssh
@@ -59,6 +71,13 @@ jobs:
           echo "This is the image name :- ${{ inputs.image }}"
           echo "IMG_NAME=mohammadjabaren${{ inputs.image }}" > .env
           echo "AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET_MAIN }}" >> .env
+          echo "STRORAGE_TYPE=dynamodb" >> .env
+          echo "PREDICTION_SESSIONS=${{ secrets.PREDICTION_SESSIONS_PROD }}" >> .env
+          echo "DETECTION_OBJECTS=${{ secrets.DETECTION_OBJECTS_PROD }}" >> .env
+          echo "SQS_URL=${{ secrets.SQS_URL_PROD }}" >> .env
+          echo "LABEL_GSI=label-score-index-prod" >> .env
+          echo "SCORE_GSI=score_partition-prod" >> .env
+          echo "POLYBOT_IP=${{ secrets.POLYBOT_IP_PROD }}" >> .env
 
           # Send .env and compose file to EC2
           scp .env docker-compose.prod.yaml otelcol-config.yaml ec2:~/
