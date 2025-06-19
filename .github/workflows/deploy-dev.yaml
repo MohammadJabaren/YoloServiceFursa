@@ -79,7 +79,8 @@ jobs:
           echo "LABEL_GSI=LabelScoreIndex" >> .env
           echo "SCORE_GSI=score_partition-score-index" >> .env
            echo "POLYBOT_IP=${{ secrets.POLYBOT_IP_DEV }}" >> .env
-          
+           echo "AWS_REGION=us-west-1" >> .env
+         
           echo "This is the storage type :- $STORAGE_TYPE"
           # Send .env and compose file to EC2
           scp .env docker-compose.dev.yaml otelcol-config.yaml ec2:~/

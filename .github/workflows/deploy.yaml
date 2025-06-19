@@ -78,7 +78,8 @@ jobs:
           echo "LABEL_GSI=label-score-index-prod" >> .env
           echo "SCORE_GSI=score_partition-prod" >> .env
           echo "POLYBOT_IP=${{ secrets.POLYBOT_IP_PROD }}" >> .env
-
+           echo "AWS_REGION=us-west-1" >> .env
+         
           # Send .env and compose file to EC2
           scp .env docker-compose.prod.yaml otelcol-config.yaml ec2:~/
 
