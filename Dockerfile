@@ -1,19 +1,27 @@
 # Use an official Python runtime as base image
-FROM python:3.10-slim
+FROM python:3.10-alpine
+
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libgl1 \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+# Install system dependencies compatible with Alpine
+RUN apk update && apk upgrade && \
+    apk add --no-cache \
+    build-base \
+    libffi-dev \
+    musl-dev \
+    jpeg-dev \
+    zlib-dev \
+    libstdc++ \
+    mesa-gl \
+    libxrender \
+    libxext \
+    libsm \
+    curl
+
 
 # Pre-copy only requirements files for caching
 COPY torch-requirements.txt requirements.txt ./
@@ -29,3 +37,9 @@ COPY . .
 
 # Run the bot
 CMD ["python", "app.py"]
+
+
+
+
+
+
