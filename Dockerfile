@@ -1,39 +1,34 @@
-# Use an official Python runtime as base image
-FROM python:3.10-alpine
+FROM python:3.10-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1
 
-# Set working directory
 WORKDIR /app
 
-# Install system dependencies compatible with Alpine
-RUN apk update && apk upgrade && \
-    apk add --no-cache \
-    build-base \
-    libffi-dev \
-    musl-dev \
-    jpeg-dev \
-    zlib-dev \
-    libstdc++ \
-    mesa-gl \
-    libxrender \
-    libxext \
-    libsm \
-    curl
+# Install system dependencies
+RUN apt-get update && \
+    apt-get dist-upgrade -y && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    curl && \
+    apt-get autoremove -y && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-
-# Pre-copy only requirements files for caching
+# Pre-copy requirements
 COPY torch-requirements.txt requirements.txt ./
 
-# Install Python dependencies (this step is cached unless these files change)
-RUN pip install --upgrade pip \
-    && pip install -r torch-requirements.txt \
-    && pip install -r requirements.txt
+# Install Python packages
+RUN pip install --upgrade pip setuptools && \
+    pip install -r torch-requirements.txt && \
+    pip install -r requirements.txt
 
-# Now copy the full application code
+# Copy application code
 COPY . .
-
 
 # Run the bot
 CMD ["python", "app.py"]
