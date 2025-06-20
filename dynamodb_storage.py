@@ -8,6 +8,7 @@ import os
 import logging
 from dotenv import load_dotenv
 logger = logging.getLogger("dynamodb_storage")
+from uuid import uuid4
 
 
 load_dotenv()
@@ -35,9 +36,10 @@ class DynamoDBStorage(StorageInterface):
 
 
     def save_detection(self, uid: str, label: str, score:float, bbox:list[Decimal]):
+        detection_id = f"{label}_{score}_{str(uuid4())}"
         item = {
             "prediction_uid": uid,
-            "label_score": f"{label}#{score}",
+            "label_score": detection_id,
             "label": label,
             "score": Decimal(score),
             "score_partition": "score",
