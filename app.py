@@ -38,6 +38,7 @@ os.makedirs(PREDICTED_DIR, exist_ok=True)
 
 model = YOLO("yolov8n.pt")
 app = FastAPI()
+storage_type = os.getenv("STORAGE_TYPE", "sqlite").lower()
 storage = StorageFactory.create_storage()
 
 
