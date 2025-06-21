@@ -40,3 +40,7 @@ jobs:
       EC2_DEV_HOST: ${{ secrets.EC2_DEV_HOST }}
       EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
       AWS_S3_BUCKET_DEV: ${{secrets.AWS_S3_BUCKET_DEV}}
+      DETECTION_OBJECTS_DEV: ${{secrets.DETECTION_OBJECTS_DEV}}
+      PREDICTION_SESSIONS_DEV: ${{secrets.PREDICTION_SESSIONS_DEV}}
+      SQS_URL_DEV: ${{secrets.SQS_URL_DEV}}
+      POLYBOT_IP_DEV: ${{secrets.POLYBOT_IP_DEV}}
