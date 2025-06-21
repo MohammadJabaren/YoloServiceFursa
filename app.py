@@ -18,6 +18,8 @@ import json
 import threading
 import time
 import requests
+from storage_factory import StorageFactory
+
 
 logger = logging.getLogger("dynamodb_storage")
 load_dotenv()
@@ -36,14 +38,8 @@ os.makedirs(PREDICTED_DIR, exist_ok=True)
 
 model = YOLO("yolov8n.pt")
 app = FastAPI()
+storage = StorageFactory.create_storage()
 
-# Choose storage implementation
-storage_type = os.getenv("STORAGE_TYPE", "sqlite")
-if storage_type == "dynamodb":
-    storage = DynamoDBStorage()
-else:
-    init_db()
-    storage = SQLiteStorage()
 
 
 
