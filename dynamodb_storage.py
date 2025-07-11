@@ -42,7 +42,7 @@ class DynamoDBStorage(StorageInterface):
             "label_score": detection_id,
             "label": label,
             "score": Decimal(score),
-            "score_partition": "score",
+            "score_partition": "adf",
             "box": json.dumps([float(x) for x in bbox])
 
         }

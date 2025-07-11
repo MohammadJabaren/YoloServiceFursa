@@ -30,17 +30,17 @@ jobs:
          # build & push the image 
          docker build --push -t $img_name  .
 
-  Deploy:
-    needs: Build
-    uses: ./.github/workflows/deploy.yaml
-    with:
-      image: ${{ needs.Build.outputs.image }}
-    secrets:
-      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      EC2_HOST: ${{ secrets.EC2_HOST }}
-      EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
-      AWS_S3_BUCKET_MAIN: ${{secrets.AWS_S3_BUCKET_MAIN}}
-      DETECTION_OBJECTS_PROD: ${{secrets.DETECTION_OBJECTS_PROD}}
-      PREDICTION_SESSIONS_PROD: ${{secrets.PREDICTION_SESSIONS_PROD}}
-      SQS_URL_PROD: ${{secrets.SQS_URL_PROD}}
-      POLYBOT_IP_PROD: ${{secrets.POLYBOT_IP_PROD}}
+#  Deploy:
+#    needs: Build
+#    uses: ./.github/workflows/deploy.yaml
+#    with:
+#      image: ${{ needs.Build.outputs.image }}
+#    secrets:
+#      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+#      EC2_HOST: ${{ secrets.EC2_HOST }}
+#      EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+#      AWS_S3_BUCKET_MAIN: ${{secrets.AWS_S3_BUCKET_MAIN}}
+#      DETECTION_OBJECTS_PROD: ${{secrets.DETECTION_OBJECTS_PROD}}
+#      PREDICTION_SESSIONS_PROD: ${{secrets.PREDICTION_SESSIONS_PROD}}
+#      SQS_URL_PROD: ${{secrets.SQS_URL_PROD}}
+#      POLYBOT_IP_PROD: ${{secrets.POLYBOT_IP_PROD}}
