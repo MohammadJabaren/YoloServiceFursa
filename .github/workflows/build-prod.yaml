@@ -3,7 +3,7 @@ name: Yolo Build Production
 on:
   push:
     branches:
-     - main
+     - dev
 
 jobs:
   Build:
