@@ -1,0 +1,100 @@
+import boto3
+from decimal import Decimal
+from boto3.dynamodb.conditions import Key, Attr
+from storage_interface import StorageInterface
+import json
+from typing import List, Dict
+import os
+import logging
+from dotenv import load_dotenv
+logger = logging.getLogger("dynamodb_storage")
+from uuid import uuid4
+
+
+load_dotenv()
+PREDICTION_SESSIONS = os.getenv("PREDICTION_SESSIONS")
+DETECTION_OBJECTS = os.getenv("DETECTION_OBJECTS")
+LABEL_GSI = os.getenv("LABEL_GSI")
+SCORE_GSI = os.getenv("SCORE_GSI")
+
+
+class DynamoDBStorage(StorageInterface):
+    def __init__(self):
+        region = os.getenv("AWS_REGION", "us-west-1")  # default to us-west-1 if not set
+        if not region:
+            raise ValueError("Missing AWS_REGION environment variable")
+        self.dynamodb = boto3.resource('dynamodb', region_name=region)
+        self.session_table = self.dynamodb.Table(PREDICTION_SESSIONS)
+        self.objects_table = self.dynamodb.Table(DETECTION_OBJECTS)
+
+    def save_prediction(self, uid: str, original_path: str, predicted_path: str):
+        self.session_table.put_item(Item={
+            "uid": uid,
+            "original_image": original_path,
+            "predicted_image": predicted_path
+        })
+
+
+    def save_detection(self, uid: str, label: str, score:float, bbox:list[Decimal]):
+        detection_id = f"{label}_{score}_{str(uuid4())}"
+        item = {
+            "prediction_uid": uid,
+            "label_score": detection_id,
+            "label": label,
+            "score": Decimal(score),
+            "score_partition": "score",
+            "box": json.dumps([float(x) for x in bbox])
+
+        }
+        logger.info(f"[Detection] Inserting item: {item}")
+        try:
+            self.objects_table.put_item(Item=item)
+            logger.info(f"[Detection] Inserted detection for {uid}")
+        except Exception as e:
+            logger.error(f"[DynamoDB ERROR] Failed to insert detection: {e}")
+
+    def get_prediction(self, uid: str) -> Dict:
+        session = self.session_table.get_item(Key={"uid": uid}).get("Item")
+        if not session:
+            raise ValueError("Prediction not found")
+        response = self.objects_table.query(
+            KeyConditionExpression=Key("prediction_uid").eq(uid)
+        )
+        return {
+            "uid": uid,
+            "original_image": session.get("original_image"),
+            "predicted_image": session.get("predicted_image")
+        }
+
+    def get_predictions_by_label(self, label: str) -> List[Dict]:
+        response = self.objects_table.query(
+            IndexName=LABEL_GSI,
+            KeyConditionExpression=Key("label").eq(label)
+        )
+        seen = set()
+        result = []
+        for item in response["Items"]:
+            uid = item["prediction_uid"]
+            if uid not in seen:
+                seen.add(uid)
+                session = self.session_table.get_item(Key={"uid": uid}).get("Item")
+                result.append({"uid": uid, "timestamp": session.get("timestamp", "unknown")})
+        return result
+
+
+    def get_predictions_by_score(self, min_score: float) -> List[Dict]:
+        response = self.objects_table.query(
+            IndexName=SCORE_GSI,
+            KeyConditionExpression=Key("score_partition").eq("score") & Key("score").gte(Decimal(str(min_score)))
+        )
+        seen = set()
+        result = []
+        for item in response["Items"]:
+            uid = item["prediction_uid"]
+            if uid not in seen:
+                seen.add(uid)
+                session = self.session_table.get_item(Key={"uid": uid}).get("Item")
+                result.append({"uid": uid, "timestamp": session.get("timestamp", "unknown")})
+        return result
+
+#test
